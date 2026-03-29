@@ -14,7 +14,7 @@ export function TemplateEditor() {
   const { templates, addTemplate, updateTemplate } = useTemplateStore();
   const { exercises } = useExerciseStore();
 
-  const isNew = id === 'new';
+  const isNew = !id;
   const existing = isNew ? null : templates.find((t) => t.id === id);
 
   const [name, setName] = useState(existing?.name ?? '');
