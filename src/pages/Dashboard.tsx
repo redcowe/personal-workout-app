@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Dumbbell, Plus, History, Calendar } from 'lucide-react';
+import { Dumbbell, Plus, History, Calendar, Play, ChevronRight } from 'lucide-react';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
 import { useTemplateStore } from '../store/templateStore';
+import { useExerciseStore } from '../store/exerciseStore';
 import { Card } from '../components/ui/Card';
 import { formatDate } from '../utils/dates';
 import { getLast7Days, isSameDay } from '../utils/dates';
@@ -9,6 +10,7 @@ import { getLast7Days, isSameDay } from '../utils/dates';
 export function Dashboard() {
   const { logs } = useWorkoutLogStore();
   const { templates } = useTemplateStore();
+  const { exercises } = useExerciseStore();
 
   const recentLogs = [...logs]
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -20,6 +22,13 @@ export function Dashboard() {
     0
   );
 
+  const getExerciseNames = (template: typeof templates[0]) =>
+    template.exercises
+      .slice(0, 3)
+      .map((te) => exercises.find((e) => e.id === te.exerciseId)?.name ?? '')
+      .filter(Boolean)
+      .join(', ') + (template.exercises.length > 3 ? ` +${template.exercises.length - 3} more` : '');
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-8">
@@ -27,30 +36,57 @@ export function Dashboard() {
         <p className="text-slate-400">Welcome back! Keep up the great work.</p>
       </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <Link to="/log">
-          <Card className="hover:border-violet-500 transition-colors cursor-pointer flex items-center gap-4">
-            <div className="w-12 h-12 bg-violet-600 rounded-xl flex items-center justify-center shrink-0">
-              <Dumbbell size={24} className="text-white" />
-            </div>
+      {/* Start a Workout */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-semibold flex items-center gap-2">
+            <Dumbbell size={18} className="text-violet-400" /> Start a Workout
+          </h2>
+          <Link to="/templates/new" className="text-violet-400 text-sm hover:text-violet-300 flex items-center gap-1">
+            <Plus size={14} /> New template
+          </Link>
+        </div>
+
+        {templates.length === 0 ? (
+          <Card className="flex items-center justify-between">
             <div>
-              <p className="text-white font-semibold">Start Workout</p>
-              <p className="text-slate-400 text-sm">Log a new session</p>
+              <p className="text-white font-medium">No templates yet</p>
+              <p className="text-slate-400 text-sm">Create a template or start a blank session</p>
+            </div>
+            <div className="flex gap-2">
+              <Link to="/templates/new" className="text-sm px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors">
+                New template
+              </Link>
+              <Link to="/log" className="text-sm px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white transition-colors flex items-center gap-1">
+                <Play size={13} /> Blank
+              </Link>
             </div>
           </Card>
-        </Link>
-        <Link to="/templates/new">
-          <Card className="hover:border-violet-500 transition-colors cursor-pointer flex items-center gap-4">
-            <div className="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center shrink-0">
-              <Plus size={24} className="text-slate-300" />
-            </div>
-            <div>
-              <p className="text-white font-semibold">New Template</p>
-              <p className="text-slate-400 text-sm">Build a workout plan</p>
-            </div>
-          </Card>
-        </Link>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {templates.map((template) => (
+              <Card key={template.id} className="flex items-center justify-between py-3 px-4">
+                <div className="min-w-0">
+                  <p className="text-white font-medium truncate">{template.name}</p>
+                  <p className="text-slate-500 text-xs truncate">{getExerciseNames(template)}</p>
+                </div>
+                <Link
+                  to={`/log?template=${template.id}`}
+                  className="ml-4 shrink-0 flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  <Play size={13} /> Start
+                </Link>
+              </Card>
+            ))}
+            <Link
+              to="/log"
+              className="flex items-center justify-between px-4 py-3 rounded-xl border border-dashed border-slate-700 hover:border-slate-500 text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <span className="text-sm">Blank workout (no template)</span>
+              <ChevronRight size={16} />
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
