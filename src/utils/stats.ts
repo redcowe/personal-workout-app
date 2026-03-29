@@ -11,7 +11,7 @@ export function getPersonalRecords(logs: WorkoutLog[]): Record<string, PersonalR
   for (const log of logs) {
     for (const ex of log.exercises) {
       for (const set of ex.sets) {
-        if (!set.completed || !set.weight) continue;
+        if (set.status !== 'completed' || !set.weight) continue;
         const existing = prs[ex.exerciseId];
         if (!existing || set.weight > existing.maxWeight) {
           prs[ex.exerciseId] = {
@@ -36,7 +36,7 @@ export function getWeeklyVolume(logs: WorkoutLog[]): { week: string; volume: num
     let volume = 0;
     for (const ex of log.exercises) {
       for (const set of ex.sets) {
-        if (set.completed && set.weight) {
+        if (set.status === 'completed' && set.weight) {
           volume += set.reps * set.weight;
         }
       }
@@ -57,7 +57,7 @@ export function getExerciseMaxWeightHistory(
   for (const log of sorted) {
     const ex = log.exercises.find((e) => e.exerciseId === exerciseId);
     if (!ex) continue;
-    const maxWeight = Math.max(...ex.sets.filter((s) => s.completed && s.weight).map((s) => s.weight!));
+    const maxWeight = Math.max(...ex.sets.filter((s) => s.status === 'completed' && s.weight).map((s) => s.weight!));
     if (maxWeight > 0) {
       result.push({ date: log.date.split('T')[0], weight: maxWeight });
     }

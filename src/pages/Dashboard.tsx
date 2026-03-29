@@ -16,7 +16,7 @@ export function Dashboard() {
 
   const last7 = getLast7Days();
   const totalSets = logs.reduce(
-    (sum, log) => sum + log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.completed).length, 0),
+    (sum, log) => sum + log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.status === 'completed').length, 0),
     0
   );
 
@@ -116,7 +116,7 @@ export function Dashboard() {
         ) : (
           <ul className="flex flex-col gap-3">
             {recentLogs.map((log) => {
-              const completedSets = log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.completed).length, 0);
+              const completedSets = log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.status === 'completed').length, 0);
               return (
                 <li key={log.id} className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0">
                   <div>

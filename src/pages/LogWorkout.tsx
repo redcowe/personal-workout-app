@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Circle, Plus, Trash2, Clock, Save, X } from 'lucide-react';
+import { CheckCircle2, Circle, XCircle, Plus, Trash2, Clock, Save, X } from 'lucide-react';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
-import type { LogExercise } from '../types';
+import type { LogExercise, SetStatus } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
@@ -38,7 +38,7 @@ export function LogWorkout() {
       sets: Array.from({ length: te.sets }, () => ({
         reps: te.reps,
         weight: te.weight,
-        completed: false,
+        status: 'pending' as SetStatus,
       })),
     }));
   });
@@ -51,11 +51,20 @@ export function LogWorkout() {
 
   const getExerciseName = (id: string) => exercises.find((e) => e.id === id)?.name ?? 'Unknown';
 
-  const toggleSet = (exIdx: number, setIdx: number) => {
+  const cycleSetStatus = (exIdx: number, setIdx: number) => {
     setLogExercises((prev) =>
       prev.map((ex, i) =>
         i === exIdx
-          ? { ...ex, sets: ex.sets.map((s, j) => (j === setIdx ? { ...s, completed: !s.completed } : s)) }
+          ? {
+              ...ex,
+              sets: ex.sets.map((s, j) => {
+                if (j !== setIdx) return s;
+                const next: SetStatus =
+                  s.status === 'pending' ? 'completed' :
+                  s.status === 'completed' ? 'failed' : 'pending';
+                return { ...s, status: next };
+              }),
+            }
           : ex
       )
     );
@@ -76,7 +85,7 @@ export function LogWorkout() {
       prev.map((ex, i) => {
         if (i !== exIdx) return ex;
         const last = ex.sets[ex.sets.length - 1];
-        return { ...ex, sets: [...ex.sets, { reps: last?.reps ?? 10, weight: last?.weight, completed: false }] };
+        return { ...ex, sets: [...ex.sets, { reps: last?.reps ?? 10, weight: last?.weight, status: 'pending' as SetStatus }] };
       })
     );
   };
@@ -90,7 +99,7 @@ export function LogWorkout() {
   };
 
   const addExercise = (exerciseId: string) => {
-    setLogExercises((prev) => [...prev, { exerciseId, sets: [{ reps: 10, weight: undefined, completed: false }] }]);
+    setLogExercises((prev) => [...prev, { exerciseId, sets: [{ reps: 10, weight: undefined, status: 'pending' as SetStatus }] }]);
     setPickerOpen(false);
     setPickerSearch('');
   };
@@ -111,7 +120,7 @@ export function LogWorkout() {
     navigate('/history');
   };
 
-  const completedSets = logExercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.completed).length, 0);
+  const completedSets = logExercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.status === 'completed').length, 0);
   const totalSets = logExercises.reduce((sum, ex) => sum + ex.sets.length, 0);
   const filteredExercises = exercises.filter((ex) => ex.name.toLowerCase().includes(pickerSearch.toLowerCase()));
 
@@ -157,9 +166,25 @@ export function LogWorkout() {
             </div>
 
             {logEx.sets.map((set, setIdx) => (
-              <div key={setIdx} className={`grid grid-cols-[32px_1fr_1fr_32px] gap-2 items-center mb-1.5 rounded-lg px-1 py-0.5 transition-colors ${set.completed ? 'bg-green-900/20' : ''}`}>
-                <button onClick={() => toggleSet(exIdx, setIdx)} className={`transition-colors ${set.completed ? 'text-green-400' : 'text-slate-600 hover:text-slate-400'}`}>
-                  {set.completed ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+              <div
+                key={setIdx}
+                className={`grid grid-cols-[32px_1fr_1fr_32px] gap-2 items-center mb-1.5 rounded-lg px-1 py-0.5 transition-colors ${
+                  set.status === 'completed' ? 'bg-green-900/20' :
+                  set.status === 'failed' ? 'bg-red-900/20' : ''
+                }`}
+              >
+                <button
+                  onClick={() => cycleSetStatus(exIdx, setIdx)}
+                  title={set.status === 'pending' ? 'Mark complete' : set.status === 'completed' ? 'Mark failed' : 'Clear'}
+                  className={`transition-colors ${
+                    set.status === 'completed' ? 'text-green-400' :
+                    set.status === 'failed' ? 'text-red-400' :
+                    'text-slate-600 hover:text-slate-400'
+                  }`}
+                >
+                  {set.status === 'completed' ? <CheckCircle2 size={20} /> :
+                   set.status === 'failed' ? <XCircle size={20} /> :
+                   <Circle size={20} />}
                 </button>
                 <input
                   type="number"

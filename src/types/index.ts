@@ -37,10 +37,12 @@ export interface WorkoutTemplate {
   createdAt: string;
 }
 
+export type SetStatus = 'pending' | 'completed' | 'failed';
+
 export interface LogSet {
   reps: number;
   weight?: number;
-  completed: boolean;
+  status: SetStatus;
 }
 
 export interface LogExercise {

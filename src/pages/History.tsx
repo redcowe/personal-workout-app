@@ -31,7 +31,7 @@ export function History() {
         <div className="flex flex-col gap-3">
           {sorted.map((log) => {
             const isExpanded = expanded === log.id;
-            const completedSets = log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.completed).length, 0);
+            const completedSets = log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.status === 'completed').length, 0);
             const totalSets = log.exercises.reduce((s, ex) => s + ex.sets.length, 0);
 
             return (
@@ -62,7 +62,11 @@ export function History() {
                           {logEx.sets.map((set, j) => (
                             <span
                               key={j}
-                              className={`text-xs px-2 py-1 rounded ${set.completed ? 'bg-green-900/40 text-green-300' : 'bg-slate-700 text-slate-400'}`}
+                              className={`text-xs px-2 py-1 rounded ${
+                                set.status === 'completed' ? 'bg-green-900/40 text-green-300' :
+                                set.status === 'failed' ? 'bg-red-900/40 text-red-300 line-through' :
+                                'bg-slate-700 text-slate-400'
+                              }`}
                             >
                               {set.reps} reps{set.weight ? ` @ ${set.weight}kg` : ''}
                             </span>
