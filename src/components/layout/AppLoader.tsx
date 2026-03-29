@@ -21,9 +21,9 @@ export function AppLoader({ children }: { children: ReactNode }) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center px-6">
         <p className="text-4xl mb-4">⚠️</p>
-        <h1 className="text-white text-xl font-bold mb-2">Could not reach the API server</h1>
+        <h1 className="text-white text-xl font-bold mb-2">Could not reach Firebase</h1>
         <p className="text-slate-400 text-sm max-w-sm mb-4">{error}</p>
-        <p className="text-slate-500 text-xs">Make sure <code className="text-slate-300">npm run dev:server</code> is running.</p>
+        <p className="text-slate-500 text-xs">Check your <code className="text-slate-300">VITE_FIREBASE_*</code> environment variables in <code className="text-slate-300">.env</code>.</p>
       </div>
     );
   }

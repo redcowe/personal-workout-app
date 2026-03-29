@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { WorkoutTemplate } from '../types';
-import { api } from '../utils/api';
+import * as fb from '../lib/firebase';
 
 interface TemplateStore {
   templates: WorkoutTemplate[];
@@ -18,7 +18,7 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
   fetch: async () => {
     set({ loading: true });
     try {
-      const templates = await api.getTemplates();
+      const templates = await fb.getTemplates();
       set({ templates, loading: false });
     } catch (err) {
       console.error('Failed to fetch templates:', err);
@@ -27,18 +27,20 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
   },
 
   addTemplate: async (t) => {
-    const newTemplate = await api.createTemplate(t);
+    const newTemplate = await fb.createTemplate({ ...t, createdAt: new Date().toISOString() });
     set((state) => ({ templates: [...state.templates, newTemplate] }));
     return newTemplate;
   },
 
   updateTemplate: async (id, updates) => {
-    const updated = await api.updateTemplate(id, updates);
-    set((state) => ({ templates: state.templates.map((t) => (t.id === id ? { ...t, ...updated } : t)) }));
+    await fb.updateTemplate(id, updates);
+    set((state) => ({
+      templates: state.templates.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+    }));
   },
 
   deleteTemplate: async (id) => {
-    await api.deleteTemplate(id);
+    await fb.deleteTemplate(id);
     set((state) => ({ templates: state.templates.filter((t) => t.id !== id) }));
   },
 }));

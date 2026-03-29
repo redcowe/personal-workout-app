@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { WorkoutLog } from '../types';
-import { api } from '../utils/api';
+import * as fb from '../lib/firebase';
 
 interface WorkoutLogStore {
   logs: WorkoutLog[];
@@ -17,7 +17,7 @@ export const useWorkoutLogStore = create<WorkoutLogStore>((set) => ({
   fetch: async () => {
     set({ loading: true });
     try {
-      const logs = await api.getLogs();
+      const logs = await fb.getLogs();
       set({ logs, loading: false });
     } catch (err) {
       console.error('Failed to fetch logs:', err);
@@ -26,12 +26,12 @@ export const useWorkoutLogStore = create<WorkoutLogStore>((set) => ({
   },
 
   addLog: async (log) => {
-    const newLog = await api.createLog(log);
+    const newLog = await fb.createLog(log);
     set((state) => ({ logs: [newLog, ...state.logs] }));
   },
 
   deleteLog: async (id) => {
-    await api.deleteLog(id);
+    await fb.deleteLog(id);
     set((state) => ({ logs: state.logs.filter((l) => l.id !== id) }));
   },
 }));
