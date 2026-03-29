@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Dumbbell, Plus, History, Calendar } from 'lucide-react';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
-import { useExerciseStore } from '../store/exerciseStore';
 import { useTemplateStore } from '../store/templateStore';
 import { Card } from '../components/ui/Card';
 import { formatDate } from '../utils/dates';
@@ -9,7 +8,6 @@ import { getLast7Days, isSameDay } from '../utils/dates';
 
 export function Dashboard() {
   const { logs } = useWorkoutLogStore();
-  const { exercises } = useExerciseStore();
   const { templates } = useTemplateStore();
 
   const recentLogs = [...logs]
@@ -21,9 +19,6 @@ export function Dashboard() {
     (sum, log) => sum + log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.completed).length, 0),
     0
   );
-
-  // suppress unused warning - exercises is shown in stats
-  void exercises;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

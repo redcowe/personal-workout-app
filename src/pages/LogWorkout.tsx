@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Circle, Plus, Trash2, Clock, Save } from 'lucide-react';
+import { CheckCircle2, Circle, Plus, Trash2, Clock, Save, X } from 'lucide-react';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
@@ -45,6 +45,7 @@ export function LogWorkout() {
 
   const [notes, setNotes] = useState('');
   const [finishOpen, setFinishOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
 
@@ -127,6 +128,9 @@ export function LogWorkout() {
             <Clock size={16} />
             <span className="font-mono">{timer.fmt}</span>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => setDiscardOpen(true)}>
+            <X size={16} /> Discard
+          </Button>
           <Button onClick={() => setFinishOpen(true)}>
             <Save size={16} /> Finish
           </Button>
@@ -242,6 +246,14 @@ export function LogWorkout() {
             <Button variant="secondary" onClick={() => setFinishOpen(false)}>Keep Going</Button>
             <Button onClick={handleFinish}>Save Workout</Button>
           </div>
+        </div>
+      </Modal>
+      {/* Discard confirmation */}
+      <Modal isOpen={discardOpen} onClose={() => setDiscardOpen(false)} title="Discard Workout" size="sm">
+        <p className="text-slate-300 mb-6">Are you sure? This workout won't be saved.</p>
+        <div className="flex justify-end gap-3">
+          <Button variant="secondary" onClick={() => setDiscardOpen(false)}>Keep Going</Button>
+          <Button variant="danger" onClick={() => navigate('/')}>Discard</Button>
         </div>
       </Modal>
     </div>
