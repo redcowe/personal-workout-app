@@ -8,6 +8,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
 
+  // Skip auth entirely in local dev
+  if (import.meta.env.DEV) return <>{children}</>;
+
   useEffect(() => {
     const unsub = onAuthChange(async (u) => {
       if (u && isSessionExpired()) {
