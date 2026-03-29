@@ -86,6 +86,15 @@ export function Navbar() {
               </li>
             );
           })}
+          <li>
+            <button
+              onClick={() => logout()}
+              className="flex flex-col items-center gap-0.5 px-1 py-2 text-slate-500 hover:text-red-400 transition-colors"
+            >
+              <LogOut size={20} />
+              <span className="text-[10px] leading-none">Sign out</span>
+            </button>
+          </li>
         </ul>
       </nav>
     </>
