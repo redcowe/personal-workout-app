@@ -10,14 +10,7 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore';
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  browserLocalPersistence,
-  setPersistence,
-} from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import type { Exercise, WorkoutTemplate, WorkoutLog } from '../types';
 
@@ -38,6 +31,7 @@ export const auth = getAuth(app);
 
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 const LOGIN_TIME_KEY = 'workout-app:login-time';
+const ALLOWED_EMAIL = import.meta.env.VITE_ALLOWED_EMAIL as string;
 
 setPersistence(auth, browserLocalPersistence);
 
@@ -47,8 +41,13 @@ export function isSessionExpired(): boolean {
   return Date.now() - Number(t) > SESSION_DURATION_MS;
 }
 
-export async function login(email: string, password: string): Promise<void> {
-  await signInWithEmailAndPassword(auth, email, password);
+export async function loginWithGoogle(): Promise<void> {
+  const provider = new GoogleAuthProvider();
+  const result = await signInWithPopup(auth, provider);
+  if (ALLOWED_EMAIL && result.user.email !== ALLOWED_EMAIL) {
+    await signOut(auth);
+    throw new Error(`Access denied. Only ${ALLOWED_EMAIL} is allowed.`);
+  }
   localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
 }
 
