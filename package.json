@@ -11,6 +11,7 @@
     "build:server": "tsc -p tsconfig.server.json",
     "start:server": "node dist-server/index.js",
     "db:setup": "mysql -h \"${DB_HOST:-localhost}\" -P \"${DB_PORT:-3306}\" -u \"${DB_USER:-root}\" -p\"${DB_PASSWORD}\" < server/schema.sql",
+    "db:seed": "tsx server/seed-exercises.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },

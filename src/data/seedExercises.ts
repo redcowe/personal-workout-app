@@ -37,17 +37,39 @@ export const SEED_EXERCISES: Exercise[] = [
 
   // Legs
   { id: genId(), name: 'Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Low Bar Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'High Bar Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Front Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Pause Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Box Squat', muscleGroup: 'Legs', type: 'strength' },
   { id: genId(), name: 'Leg Press', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Hack Squat', muscleGroup: 'Legs', type: 'strength' },
   { id: genId(), name: 'Leg Curl', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Lying Leg Curl', muscleGroup: 'Legs', type: 'strength' },
   { id: genId(), name: 'Leg Extension', muscleGroup: 'Legs', type: 'strength' },
   { id: genId(), name: 'Lunges', muscleGroup: 'Legs', type: 'bodyweight' },
+  { id: genId(), name: 'Barbell Lunges', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Walking Lunges', muscleGroup: 'Legs', type: 'bodyweight' },
+  { id: genId(), name: 'Bulgarian Split Squat', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Leg Press (Wide Stance)', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Sissy Squat', muscleGroup: 'Legs', type: 'bodyweight' },
+  { id: genId(), name: 'Leg Adduction', muscleGroup: 'Legs', type: 'strength' },
+  { id: genId(), name: 'Leg Abduction', muscleGroup: 'Legs', type: 'strength' },
 
   // Glutes
   { id: genId(), name: 'Hip Thrust', muscleGroup: 'Glutes', type: 'strength' },
+  { id: genId(), name: 'Barbell Hip Thrust', muscleGroup: 'Glutes', type: 'strength' },
   { id: genId(), name: 'Romanian Deadlift', muscleGroup: 'Glutes', type: 'strength' },
+  { id: genId(), name: 'Sumo Deadlift', muscleGroup: 'Glutes', type: 'strength' },
+  { id: genId(), name: 'Good Mornings', muscleGroup: 'Glutes', type: 'strength' },
+  { id: genId(), name: 'Cable Pull Through', muscleGroup: 'Glutes', type: 'strength' },
+  { id: genId(), name: 'Glute Bridge', muscleGroup: 'Glutes', type: 'bodyweight' },
 
   // Calves
-  { id: genId(), name: 'Calf Raises', muscleGroup: 'Calves', type: 'strength' },
+  { id: genId(), name: 'Standing Calf Raises', muscleGroup: 'Calves', type: 'strength' },
+  { id: genId(), name: 'Seated Calf Raises', muscleGroup: 'Calves', type: 'strength' },
+  { id: genId(), name: 'Leg Press Calf Raises', muscleGroup: 'Calves', type: 'strength' },
+  { id: genId(), name: 'Donkey Calf Raises', muscleGroup: 'Calves', type: 'strength' },
 
   // Core
   { id: genId(), name: 'Plank', muscleGroup: 'Core', type: 'bodyweight' },
