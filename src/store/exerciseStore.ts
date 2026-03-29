@@ -26,8 +26,8 @@ export const useExerciseStore = create<ExerciseStore>((set) => ({
       }
       set({ exercises, loading: false });
     } catch (err) {
-      console.error('Failed to fetch exercises:', err);
       set({ loading: false });
+      throw err;
     }
   },
 

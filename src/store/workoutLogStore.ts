@@ -20,8 +20,8 @@ export const useWorkoutLogStore = create<WorkoutLogStore>((set) => ({
       const logs = await fb.getLogs();
       set({ logs, loading: false });
     } catch (err) {
-      console.error('Failed to fetch logs:', err);
       set({ loading: false });
+      throw err;
     }
   },
 

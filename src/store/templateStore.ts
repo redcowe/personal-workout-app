@@ -21,8 +21,8 @@ export const useTemplateStore = create<TemplateStore>((set) => ({
       const templates = await fb.getTemplates();
       set({ templates, loading: false });
     } catch (err) {
-      console.error('Failed to fetch templates:', err);
       set({ loading: false });
+      throw err;
     }
   },
 

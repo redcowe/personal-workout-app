@@ -14,7 +14,11 @@ export function AppLoader({ children }: { children: ReactNode }) {
   useEffect(() => {
     Promise.all([fetchExercises(), fetchTemplates(), fetchLogs()])
       .then(() => setReady(true))
-      .catch((err) => setError(err.message ?? 'Failed to connect to API'));
+      .catch((err) => {
+        const msg = err?.message ?? String(err);
+        console.error('Firebase error:', err);
+        setError(msg);
+      });
   }, []);
 
   if (error) {
