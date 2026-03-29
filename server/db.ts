@@ -28,8 +28,23 @@ export const pool = mysql.createPool({
 });
 
 export async function testConnection(): Promise<void> {
-  const conn = await pool.getConnection();
-  await conn.ping();
-  conn.release();
-  console.log(`✅ MySQL connected → ${DB_HOST}:${DB_PORT}/${DB_NAME}${sslEnabled ? ' (SSL)' : ''}`);
+  try {
+    const conn = await pool.getConnection();
+    await conn.ping();
+    conn.release();
+    console.log(`✅ MySQL connected → ${DB_HOST}:${DB_PORT}/${DB_NAME}${sslEnabled ? ' (SSL)' : ''}`);
+  } catch (err: any) {
+    const code = err.code ?? '';
+    const hints: Record<string, string> = {
+      ECONNREFUSED: `Connection refused — check DB_HOST (${DB_HOST}) and DB_PORT (${DB_PORT}) are correct and the server is reachable.`,
+      ENOTFOUND:    `Host not found — DB_HOST "${DB_HOST}" could not be resolved. Check for typos.`,
+      ETIMEDOUT:    `Connection timed out — the host is reachable but not responding on port ${DB_PORT}. Check firewall/security group rules.`,
+      ER_ACCESS_DENIED_ERROR: `Access denied — wrong DB_USER ("${DB_USER}") or DB_PASSWORD.`,
+      ER_BAD_DB_ERROR:        `Unknown database "${DB_NAME}" — run "npm run db:setup" to create it, or check DB_NAME.`,
+      UNABLE_TO_VERIFY_LEAF_SIGNATURE: `SSL cert error — try setting DB_SSL_REJECT_UNAUTHORIZED=false in .env if your provider uses a self-signed cert.`,
+    };
+    const hint = hints[code] ?? err.message;
+    console.error(`❌ MySQL connection failed [${code}]: ${hint}`);
+    throw err;
+  }
 }
