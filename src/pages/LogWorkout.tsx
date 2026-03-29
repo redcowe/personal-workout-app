@@ -170,35 +170,26 @@ export function LogWorkout() {
   const filteredExercises = exercises.filter((ex) => ex.name.toLowerCase().includes(pickerSearch.toLowerCase()));
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto pb-36 md:pb-6">
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">{effectiveTemplate?.name ?? 'Custom Workout'}</h1>
-          <p className="text-slate-400 text-sm mt-1">{completedSets}/{totalSets} sets completed</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={timer.toggle}
-            title={timer.paused ? 'Resume timer' : 'Pause timer'}
-            className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-colors font-mono ${
-              timer.paused
-                ? 'bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 animate-pulse'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Clock size={15} />
-            <span>{timer.fmt}</span>
-            {timer.paused ? <Play size={13} /> : <Pause size={13} />}
-          </button>
-          <Button variant="ghost" size="sm" onClick={() => setDiscardOpen(true)}>
-            <X size={16} /> Discard
-          </Button>
-          <Button onClick={() => setFinishOpen(true)}>
-            <Save size={16} /> Finish
-          </Button>
-        </div>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-white truncate pr-2">{effectiveTemplate?.name ?? 'Custom Workout'}</h1>
+        {/* Timer — always visible in header */}
+        <button
+          onClick={timer.toggle}
+          title={timer.paused ? 'Resume timer' : 'Pause timer'}
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-colors font-mono shrink-0 ${
+            timer.paused
+              ? 'bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 animate-pulse'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <Clock size={15} />
+          <span>{timer.fmt}</span>
+          {timer.paused ? <Play size={13} /> : <Pause size={13} />}
+        </button>
       </div>
+      <p className="text-slate-400 text-sm mb-6">{completedSets}/{totalSets} sets completed</p>
 
       {/* Exercises */}
       <div className="flex flex-col gap-4">
@@ -336,6 +327,26 @@ export function LogWorkout() {
           <Button variant="danger" onClick={handleDiscard}>Discard</Button>
         </div>
       </Modal>
+
+      {/* Sticky action bar — sits above mobile bottom nav, hidden on desktop */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 flex gap-3 px-4 py-3 bg-slate-900/95 backdrop-blur border-t border-slate-700 z-40">
+        <Button variant="ghost" size="sm" className="flex-1" onClick={() => setDiscardOpen(true)}>
+          <X size={16} /> Discard
+        </Button>
+        <Button className="flex-1" onClick={() => setFinishOpen(true)}>
+          <Save size={16} /> Finish Workout
+        </Button>
+      </div>
+
+      {/* Desktop action buttons — hidden on mobile */}
+      <div className="hidden md:flex justify-end gap-3 mt-6">
+        <Button variant="ghost" onClick={() => setDiscardOpen(true)}>
+          <X size={16} /> Discard
+        </Button>
+        <Button onClick={() => setFinishOpen(true)}>
+          <Save size={16} /> Finish Workout
+        </Button>
+      </div>
     </div>
   );
 }

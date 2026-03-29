@@ -31,7 +31,7 @@ export function Dashboard() {
       .join(', ') + (template.exercises.length > 3 ? ` +${template.exercises.length - 3} more` : '');
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto overflow-x-hidden">
       <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">Dashboard</h1>
 
       {/* Resume active workout banner */}
