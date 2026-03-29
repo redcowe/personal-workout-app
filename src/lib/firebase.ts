@@ -46,7 +46,7 @@ export async function loginWithGoogle(): Promise<void> {
   const result = await signInWithPopup(auth, provider);
   if (ALLOWED_EMAIL && result.user.email !== ALLOWED_EMAIL) {
     await signOut(auth);
-    throw new Error('Access denied. This app is private.');
+    throw new Error('Access denied.');
   }
   localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
 }
