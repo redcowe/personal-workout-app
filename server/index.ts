@@ -16,9 +16,14 @@ app.use('/api/exercises', exercisesRouter);
 app.use('/api/templates', templatesRouter);
 app.use('/api/logs', logsRouter);
 
-// Health check
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check — reflects DB connectivity
+app.get('/api/health', async (_req, res) => {
+  try {
+    await testConnection();
+    res.json({ status: 'ok', db: 'connected', timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'degraded', db: 'disconnected', timestamp: new Date().toISOString() });
+  }
 });
 
 // Global error handler
@@ -27,13 +32,11 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: err.message ?? 'Internal server error' });
 });
 
-testConnection()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 API server running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ Failed to connect to MySQL:', err.message);
-    process.exit(1);
+// Start the server regardless of DB status so Vite proxy can reach it.
+// Individual routes will return 503 if the DB is unreachable.
+app.listen(PORT, () => {
+  console.log(`🚀 API server running on http://localhost:${PORT}`);
+  testConnection().catch(() => {
+    console.error('⚠️  Running without a DB connection — API calls will fail until MySQL is reachable.');
   });
+});
