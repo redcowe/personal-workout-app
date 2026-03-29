@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Dumbbell, Plus, History, Calendar, Play, ChevronRight, Zap } from 'lucide-react';
+import { Plus, Play, ChevronRight, Zap } from 'lucide-react';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
@@ -31,11 +31,8 @@ export function Dashboard() {
       .join(', ') + (template.exercises.length > 3 ? ` +${template.exercises.length - 3} more` : '');
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
-        <p className="text-slate-400">Welcome back! Keep up the great work.</p>
-      </div>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">Dashboard</h1>
 
       {/* Resume active workout banner */}
       {active && (
@@ -60,9 +57,7 @@ export function Dashboard() {
       {/* Start a Workout */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-semibold flex items-center gap-2">
-            <Dumbbell size={18} className="text-violet-400" /> Start a Workout
-          </h2>
+          <h2 className="text-white font-semibold">Start a Workout</h2>
           <Link to="/templates/new" className="text-violet-400 text-sm hover:text-violet-300 flex items-center gap-1">
             <Plus size={14} /> New template
           </Link>
@@ -111,40 +106,34 @@ export function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <Card className="text-center">
-          <p className="text-3xl font-bold text-violet-400">{logs.length}</p>
-          <p className="text-slate-400 text-sm mt-1">Workouts</p>
-        </Card>
-        <Card className="text-center">
-          <p className="text-3xl font-bold text-violet-400">{templates.length}</p>
-          <p className="text-slate-400 text-sm mt-1">Templates</p>
-        </Card>
-        <Card className="text-center">
-          <p className="text-3xl font-bold text-violet-400">{totalSets}</p>
-          <p className="text-slate-400 text-sm mt-1">Total Sets</p>
-        </Card>
+      <div className="flex items-center gap-8 mb-8">
+        <div>
+          <p className="text-2xl font-bold text-violet-400">{logs.length}</p>
+          <p className="text-slate-500 text-xs mt-0.5">Workouts</p>
+        </div>
+        <div className="w-px h-8 bg-slate-700" />
+        <div>
+          <p className="text-2xl font-bold text-violet-400">{templates.length}</p>
+          <p className="text-slate-500 text-xs mt-0.5">Templates</p>
+        </div>
+        <div className="w-px h-8 bg-slate-700" />
+        <div>
+          <p className="text-2xl font-bold text-violet-400">{totalSets}</p>
+          <p className="text-slate-500 text-xs mt-0.5">Total Sets</p>
+        </div>
       </div>
 
       {/* Heatmap */}
       <Card className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar size={18} className="text-violet-400" />
-          <h2 className="text-white font-semibold">Activity</h2>
-        </div>
+        <h2 className="text-white font-semibold mb-4">Activity</h2>
         <WorkoutHeatmap logs={logs} weeks={26} />
       </Card>
 
       {/* Recent workouts */}
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <History size={18} className="text-violet-400" />
-            <h2 className="text-white font-semibold">Recent Workouts</h2>
-          </div>
-          <Link to="/history" className="text-violet-400 text-sm hover:text-violet-300">
-            View all
-          </Link>
+          <h2 className="text-white font-semibold">Recent Workouts</h2>
+          <Link to="/history" className="text-violet-400 text-sm hover:text-violet-300">View all</Link>
         </div>
         {recentLogs.length === 0 ? (
           <p className="text-slate-500 text-sm text-center py-8">No workouts logged yet. Start your first session!</p>
@@ -153,12 +142,12 @@ export function Dashboard() {
             {recentLogs.map((log) => {
               const completedSets = log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.status === 'completed').length, 0);
               return (
-                <li key={log.id} className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0">
-                  <div>
-                    <p className="text-white text-sm font-medium">{log.templateName || 'Custom Workout'}</p>
+                <li key={log.id} className="flex items-center justify-between gap-3 py-2 border-b border-slate-700 last:border-0">
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-medium truncate">{log.templateName || 'Custom Workout'}</p>
                     <p className="text-slate-400 text-xs">{formatDate(log.date)}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <p className="text-slate-300 text-sm">{log.exercises.length} exercises</p>
                     <p className="text-slate-500 text-xs">{completedSets} sets</p>
                   </div>

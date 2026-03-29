@@ -61,7 +61,7 @@ export function Navbar() {
               <li key={to}>
                 <Link
                   to={to}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-2 text-xs transition-colors ${
+                  className={`flex flex-col items-center gap-0.5 px-1 py-2 transition-colors ${
                     active2 ? 'text-violet-400' : 'text-slate-500'
                   }`}
                 >
@@ -71,7 +71,7 @@ export function Navbar() {
                       <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                     )}
                   </div>
-                  <span className="hidden sm:block">{label}</span>
+                  <span className="text-[10px] leading-none">{label}</span>
                 </Link>
               </li>
             );

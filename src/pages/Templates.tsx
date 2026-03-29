@@ -7,7 +7,6 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
-import { formatDate } from '../utils/dates';
 
 export function Templates() {
   const { templates, deleteTemplate } = useTemplateStore();
@@ -17,9 +16,9 @@ export function Templates() {
   const getExerciseName = (id: string) => exercises.find((e) => e.id === id)?.name ?? 'Unknown';
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">Workout Templates</h1>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">Workout Templates</h1>
         <Link to="/templates/new">
           <Button><Plus size={16} /> New Template</Button>
         </Link>
@@ -42,7 +41,6 @@ export function Templates() {
                   {template.description && (
                     <p className="text-slate-400 text-sm mt-0.5">{template.description}</p>
                   )}
-                  <p className="text-slate-500 text-xs mt-1">Created {formatDate(template.createdAt)}</p>
                 </div>
                 <div className="flex items-center gap-1 ml-2 shrink-0">
                   <Link to={`/templates/${template.id}/edit`}>

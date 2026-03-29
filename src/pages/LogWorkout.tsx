@@ -170,14 +170,14 @@ export function LogWorkout() {
   const filteredExercises = exercises.filter((ex) => ex.name.toLowerCase().includes(pickerSearch.toLowerCase()));
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white">{effectiveTemplate?.name ?? 'Custom Workout'}</h1>
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">{effectiveTemplate?.name ?? 'Custom Workout'}</h1>
           <p className="text-slate-400 text-sm mt-1">{completedSets}/{totalSets} sets completed</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={timer.toggle}
             title={timer.paused ? 'Resume timer' : 'Pause timer'}
@@ -245,7 +245,7 @@ export function LogWorkout() {
                   value={set.reps}
                   min={1}
                   onChange={(e) => updateSetField(exIdx, setIdx, 'reps', Number(e.target.value))}
-                  className="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-white w-full focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  className="bg-slate-900 border border-slate-600 rounded px-2 py-2.5 text-sm text-white w-full focus:outline-none focus:ring-1 focus:ring-violet-500"
                 />
                 <input
                   type="number"
@@ -254,7 +254,7 @@ export function LogWorkout() {
                   step={0.5}
                   placeholder="—"
                   onChange={(e) => updateSetField(exIdx, setIdx, 'weight', e.target.value === '' ? undefined : Number(e.target.value))}
-                  className="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-white w-full focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  className="bg-slate-900 border border-slate-600 rounded px-2 py-2.5 text-sm text-white w-full focus:outline-none focus:ring-1 focus:ring-violet-500"
                 />
                 <button onClick={() => removeSet(exIdx, setIdx)} className="text-slate-600 hover:text-red-400 transition-colors">
                   <Trash2 size={14} />

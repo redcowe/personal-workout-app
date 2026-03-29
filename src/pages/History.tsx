@@ -18,8 +18,8 @@ export function History() {
   const getExerciseName = (id: string) => exercises.find((e) => e.id === id)?.name ?? 'Unknown';
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-6">Workout History</h1>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Workout History</h1>
 
       {sorted.length === 0 ? (
         <EmptyState
@@ -37,14 +37,14 @@ export function History() {
             return (
               <Card key={log.id} className="cursor-pointer">
                 <div
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between gap-3"
                   onClick={() => setExpanded(isExpanded ? null : log.id)}
                 >
-                  <div>
-                    <p className="text-white font-semibold">{log.templateName || 'Custom Workout'}</p>
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold truncate">{log.templateName || 'Custom Workout'}</p>
                     <p className="text-slate-400 text-sm">{formatDate(log.date)}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 shrink-0">
                     <div className="text-right">
                       <p className="text-slate-300 text-sm">{log.exercises.length} exercises</p>
                       <p className="text-slate-500 text-xs">{completedSets}/{totalSets} sets · {log.durationMinutes ?? '—'}m</p>

@@ -27,8 +27,8 @@ export function Progress() {
 
   if (logs.length === 0) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-6">Progress</h1>
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Progress</h1>
         <EmptyState
           icon={TrendingUp}
           title="No data yet"
@@ -39,12 +39,12 @@ export function Progress() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-white mb-6">Progress</h1>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Progress</h1>
 
       {/* Weekly Volume */}
       <Card className="mb-6">
-        <h2 className="text-white font-semibold mb-4">Weekly Volume (kg × reps)</h2>
+        <h2 className="text-white font-semibold mb-4">Weekly Volume</h2>
         {weeklyVolume.length === 0 ? (
           <p className="text-slate-500 text-sm text-center py-8">No volume data yet</p>
         ) : (
@@ -66,7 +66,7 @@ export function Progress() {
 
       {/* Exercise Progress Chart */}
       <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
           <h2 className="text-white font-semibold">Max Weight Over Time</h2>
           <select
             value={selectedExerciseId}
@@ -104,17 +104,17 @@ export function Progress() {
       {/* Personal Records */}
       {Object.keys(prs).length > 0 && (
         <Card>
-          <h2 className="text-white font-semibold mb-4">Personal Records 🏆</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <h2 className="text-white font-semibold mb-4">Personal Records</h2>
+          <div className="flex flex-col">
             {Object.values(prs).map((pr) => {
               const ex = exercises.find((e) => e.id === pr.exerciseId);
               return (
-                <div key={pr.exerciseId} className="flex items-center justify-between bg-slate-900 rounded-lg px-4 py-3">
+                <div key={pr.exerciseId} className="flex items-center justify-between py-3 border-b border-slate-700 last:border-0">
                   <div>
                     <p className="text-white text-sm font-medium">{ex?.name ?? 'Unknown'}</p>
                     <p className="text-slate-500 text-xs">{formatDateShort(pr.date)}</p>
                   </div>
-                  <p className="text-violet-400 font-bold text-lg">{pr.maxWeight} kg</p>
+                  <p className="text-violet-400 font-bold">{pr.maxWeight} kg</p>
                 </div>
               );
             })}

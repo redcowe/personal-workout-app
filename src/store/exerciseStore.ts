@@ -12,6 +12,10 @@ interface ExerciseStore {
   deleteExercise: (id: string) => Promise<void>;
 }
 
+// Prevent duplicate seeding when React StrictMode double-invokes effects
+let seedingInProgress = false;
+let seeded = false;
+
 export const useExerciseStore = create<ExerciseStore>((set) => ({
   exercises: [],
   loading: false,
@@ -20,8 +24,11 @@ export const useExerciseStore = create<ExerciseStore>((set) => ({
     set({ loading: true });
     try {
       let exercises = await fb.getExercises();
-      if (exercises.length === 0) {
+      if (exercises.length === 0 && !seeded && !seedingInProgress) {
+        seedingInProgress = true;
         await Promise.all(SEED_EXERCISES.map((ex) => fb.createExercise(ex)));
+        seeded = true;
+        seedingInProgress = false;
         exercises = await fb.getExercises();
       }
       set({ exercises, loading: false });

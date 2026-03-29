@@ -71,10 +71,10 @@ export function TemplateEditor() {
     exercises.find((e) => e.id === exerciseId)?.name ?? 'Unknown';
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-white">{isNew ? 'New Template' : 'Edit Template'}</h1>
-        <div className="flex gap-3">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">{isNew ? 'New Template' : 'Edit Template'}</h1>
+        <div className="flex gap-3 shrink-0">
           <Button variant="secondary" onClick={() => navigate('/templates')}>Cancel</Button>
           <Button onClick={handleSave}>Save Template</Button>
         </div>
