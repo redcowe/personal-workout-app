@@ -5,8 +5,8 @@ import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
 import { useActiveWorkoutStore } from '../store/activeWorkoutStore';
 import { Card } from '../components/ui/Card';
+import { WorkoutHeatmap } from '../components/progress/WorkoutHeatmap';
 import { formatDate } from '../utils/dates';
-import { getLast7Days, isSameDay } from '../utils/dates';
 
 export function Dashboard() {
   const { logs } = useWorkoutLogStore();
@@ -18,7 +18,6 @@ export function Dashboard() {
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5);
 
-  const last7 = getLast7Days();
   const totalSets = logs.reduce(
     (sum, log) => sum + log.exercises.reduce((s, ex) => s + ex.sets.filter((set) => set.status === 'completed').length, 0),
     0
@@ -127,35 +126,13 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Week at a glance */}
+      {/* Heatmap */}
       <Card className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Calendar size={18} className="text-violet-400" />
-          <h2 className="text-white font-semibold">This Week</h2>
+          <h2 className="text-white font-semibold">Activity</h2>
         </div>
-        <div className="flex gap-2">
-          {last7.map((day) => {
-            const hasWorkout = logs.some((log) => isSameDay(log.date, day + 'T00:00:00'));
-            const label = new Date(day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' });
-            const isToday = day === new Date().toISOString().split('T')[0];
-            return (
-              <div key={day} className="flex flex-col items-center gap-1 flex-1">
-                <span className="text-xs text-slate-500">{label[0]}</span>
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                    hasWorkout
-                      ? 'bg-violet-600 text-white'
-                      : isToday
-                      ? 'border-2 border-violet-500 text-violet-400'
-                      : 'bg-slate-700 text-slate-500'
-                  }`}
-                >
-                  {new Date(day + 'T12:00:00').getDate()}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <WorkoutHeatmap logs={logs} weeks={26} />
       </Card>
 
       {/* Recent workouts */}
