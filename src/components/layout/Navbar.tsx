@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Dumbbell, LayoutDashboard, ClipboardList, History, TrendingUp, BookOpen } from 'lucide-react';
+import { useActiveWorkoutStore } from '../../store/activeWorkoutStore';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -12,6 +13,7 @@ const navItems = [
 
 export function Navbar() {
   const { pathname } = useLocation();
+  const { active } = useActiveWorkoutStore();
 
   return (
     <>
@@ -23,18 +25,24 @@ export function Navbar() {
         </div>
         <ul className="flex flex-col gap-1 p-3 flex-1">
           {navItems.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || (to !== '/' && pathname.startsWith(to));
+            const active2 = pathname === to || (to !== '/' && pathname.startsWith(to));
+            const hasActiveWorkout = active && to === '/log';
             return (
               <li key={to}>
                 <Link
                   to={to}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    active
+                    active2
                       ? 'bg-violet-600 text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800'
                   }`}
                 >
-                  <Icon size={18} />
+                  <div className="relative">
+                    <Icon size={18} />
+                    {hasActiveWorkout && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    )}
+                  </div>
                   {label}
                 </Link>
               </li>
@@ -47,16 +55,22 @@ export function Navbar() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 z-50">
         <ul className="flex justify-around">
           {navItems.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || (to !== '/' && pathname.startsWith(to));
+            const active2 = pathname === to || (to !== '/' && pathname.startsWith(to));
+            const hasActiveWorkout = active && to === '/log';
             return (
               <li key={to}>
                 <Link
                   to={to}
                   className={`flex flex-col items-center gap-0.5 px-2 py-2 text-xs transition-colors ${
-                    active ? 'text-violet-400' : 'text-slate-500'
+                    active2 ? 'text-violet-400' : 'text-slate-500'
                   }`}
                 >
-                  <Icon size={20} />
+                  <div className="relative">
+                    <Icon size={20} />
+                    {hasActiveWorkout && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    )}
+                  </div>
                   <span className="hidden sm:block">{label}</span>
                 </Link>
               </li>

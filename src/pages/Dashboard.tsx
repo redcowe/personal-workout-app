@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Dumbbell, Plus, History, Calendar, Play, ChevronRight } from 'lucide-react';
+import { Dumbbell, Plus, History, Calendar, Play, ChevronRight, Zap } from 'lucide-react';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
+import { useActiveWorkoutStore } from '../store/activeWorkoutStore';
 import { Card } from '../components/ui/Card';
 import { formatDate } from '../utils/dates';
 import { getLast7Days, isSameDay } from '../utils/dates';
@@ -11,6 +12,7 @@ export function Dashboard() {
   const { logs } = useWorkoutLogStore();
   const { templates } = useTemplateStore();
   const { exercises } = useExerciseStore();
+  const { active } = useActiveWorkoutStore();
 
   const recentLogs = [...logs]
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -35,6 +37,26 @@ export function Dashboard() {
         <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
         <p className="text-slate-400">Welcome back! Keep up the great work.</p>
       </div>
+
+      {/* Resume active workout banner */}
+      {active && (
+        <Link to="/log" className="block mb-6">
+          <div className="flex items-center justify-between bg-violet-600/20 border border-violet-500 rounded-xl px-5 py-4 hover:bg-violet-600/30 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-violet-500 rounded-full flex items-center justify-center shrink-0 animate-pulse">
+                <Zap size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">Workout in progress</p>
+                <p className="text-violet-300 text-xs">{active.templateName ?? 'Custom Workout'} · {String(Math.floor(active.elapsedSeconds / 60)).padStart(2, '0')}:{String(active.elapsedSeconds % 60).padStart(2, '0')} elapsed</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-violet-300 text-sm font-medium">
+              <Play size={14} /> Resume
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Start a Workout */}
       <div className="mb-8">

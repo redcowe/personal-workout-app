@@ -4,13 +4,14 @@ import { CheckCircle2, Circle, XCircle, Plus, Trash2, Clock, Save, X, Pause, Pla
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
+import { useActiveWorkoutStore } from '../store/activeWorkoutStore';
 import type { LogExercise, SetStatus } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
 
-function useTimer() {
-  const [seconds, setSeconds] = useState(0);
+function useTimer(initialSeconds: number) {
+  const [seconds, setSeconds] = useState(initialSeconds);
   const [paused, setPaused] = useState(false);
   const ref = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -24,7 +25,7 @@ function useTimer() {
   }, [paused]);
 
   const fmt = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-  return { seconds, fmt, paused, toggle: () => setPaused((p) => !p) };
+  return { seconds, setSeconds, fmt, paused, toggle: () => setPaused((p) => !p) };
 }
 
 export function LogWorkout() {
@@ -34,27 +35,58 @@ export function LogWorkout() {
   const { templates } = useTemplateStore();
   const { exercises } = useExerciseStore();
   const { addLog } = useWorkoutLogStore();
-  const timer = useTimer();
+  const { active, start, update, clear } = useActiveWorkoutStore();
 
-  const template = templateId ? templates.find((t) => t.id === templateId) : null;
+  // Determine the template for this session (from URL param)
+  const urlTemplate = templateId ? templates.find((t) => t.id === templateId) : null;
+
+  // On first render, decide: restore active workout or start fresh
+  const isRestoring = !templateId && !!active;
+  const restoredOrNew = isRestoring ? active! : null;
 
   const [logExercises, setLogExercises] = useState<LogExercise[]>(() => {
-    if (!template) return [];
-    return template.exercises.map((te) => ({
-      exerciseId: te.exerciseId,
-      sets: Array.from({ length: te.sets }, () => ({
-        reps: te.reps,
-        weight: te.weight,
-        status: 'pending' as SetStatus,
-      })),
-    }));
+    if (restoredOrNew) return restoredOrNew.exercises;
+    if (urlTemplate) {
+      return urlTemplate.exercises.map((te) => ({
+        exerciseId: te.exerciseId,
+        sets: Array.from({ length: te.sets }, () => ({
+          reps: te.reps,
+          weight: te.weight,
+          status: 'pending' as SetStatus,
+        })),
+      }));
+    }
+    return [];
   });
 
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(restoredOrNew?.notes ?? '');
   const [finishOpen, setFinishOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
+
+  const effectiveTemplate = isRestoring
+    ? { id: active?.templateId, name: active?.templateName }
+    : urlTemplate ?? null;
+
+  const timer = useTimer(restoredOrNew?.elapsedSeconds ?? 0);
+
+  // Start or resume the active workout in the store
+  useEffect(() => {
+    if (isRestoring) return; // already in store
+    start({
+      templateId: urlTemplate?.id,
+      templateName: urlTemplate?.name,
+      exercises: logExercises,
+      notes: '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync exercises + notes + elapsed to store whenever they change
+  useEffect(() => {
+    update({ exercises: logExercises, notes, elapsedSeconds: timer.seconds });
+  }, [logExercises, notes, timer.seconds]);
 
   const getExerciseName = (id: string) => exercises.find((e) => e.id === id)?.name ?? 'Unknown';
 
@@ -117,14 +149,20 @@ export function LogWorkout() {
 
   const handleFinish = () => {
     addLog({
-      templateId: template?.id,
-      templateName: template?.name,
+      templateId: effectiveTemplate?.id,
+      templateName: effectiveTemplate?.name,
       date: new Date().toISOString(),
       durationMinutes: Math.round(timer.seconds / 60),
       exercises: logExercises,
       notes,
     });
+    clear();
     navigate('/history');
+  };
+
+  const handleDiscard = () => {
+    clear();
+    navigate('/');
   };
 
   const completedSets = logExercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.status === 'completed').length, 0);
@@ -136,13 +174,13 @@ export function LogWorkout() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">{template?.name ?? 'Custom Workout'}</h1>
+          <h1 className="text-3xl font-bold text-white">{effectiveTemplate?.name ?? 'Custom Workout'}</h1>
           <p className="text-slate-400 text-sm mt-1">{completedSets}/{totalSets} sets completed</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={timer.toggle}
-            title={timer.paused ? 'Resume' : 'Pause'}
+            title={timer.paused ? 'Resume timer' : 'Pause timer'}
             className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-colors font-mono ${
               timer.paused
                 ? 'bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 animate-pulse'
@@ -289,12 +327,13 @@ export function LogWorkout() {
           </div>
         </div>
       </Modal>
+
       {/* Discard confirmation */}
       <Modal isOpen={discardOpen} onClose={() => setDiscardOpen(false)} title="Discard Workout" size="sm">
         <p className="text-slate-300 mb-6">Are you sure? This workout won't be saved.</p>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={() => setDiscardOpen(false)}>Keep Going</Button>
-          <Button variant="danger" onClick={() => navigate('/')}>Discard</Button>
+          <Button variant="danger" onClick={handleDiscard}>Discard</Button>
         </div>
       </Modal>
     </div>
