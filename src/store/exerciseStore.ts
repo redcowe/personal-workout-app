@@ -1,49 +1,51 @@
 import { create } from 'zustand';
 import type { Exercise } from '../types';
-import { loadFromStorage, saveToStorage } from '../utils/storage';
+import { api } from '../utils/api';
 import { SEED_EXERCISES } from '../data/seedExercises';
-
-const STORAGE_KEY = 'workout-app:exercises';
 
 interface ExerciseStore {
   exercises: Exercise[];
-  addExercise: (ex: Omit<Exercise, 'id'>) => void;
-  updateExercise: (id: string, updates: Partial<Omit<Exercise, 'id'>>) => void;
-  deleteExercise: (id: string) => void;
+  loading: boolean;
+  fetch: () => Promise<void>;
+  addExercise: (ex: Omit<Exercise, 'id'>) => Promise<void>;
+  updateExercise: (id: string, updates: Partial<Omit<Exercise, 'id'>>) => Promise<void>;
+  deleteExercise: (id: string) => Promise<void>;
 }
 
-function genId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
+export const useExerciseStore = create<ExerciseStore>((set, get) => ({
+  exercises: [],
+  loading: false,
 
-const stored = loadFromStorage<Exercise[]>(STORAGE_KEY, []);
-const initialExercises = stored.length > 0 ? stored : SEED_EXERCISES;
-if (stored.length === 0) {
-  saveToStorage(STORAGE_KEY, initialExercises);
-}
+  fetch: async () => {
+    set({ loading: true });
+    try {
+      let exercises = await api.getExercises();
+      // Seed the DB on first run if empty
+      if (exercises.length === 0) {
+        await Promise.all(SEED_EXERCISES.map((ex) => api.createExercise(ex)));
+        exercises = await api.getExercises();
+      }
+      set({ exercises, loading: false });
+    } catch (err) {
+      console.error('Failed to fetch exercises:', err);
+      set({ loading: false });
+    }
+  },
 
-export const useExerciseStore = create<ExerciseStore>((set) => ({
-  exercises: initialExercises,
+  addExercise: async (ex) => {
+    const newEx = await api.createExercise(ex);
+    set((state) => ({ exercises: [...state.exercises, newEx] }));
+  },
 
-  addExercise: (ex) =>
-    set((state) => {
-      const newEx: Exercise = { ...ex, id: genId() };
-      const updated = [...state.exercises, newEx];
-      saveToStorage(STORAGE_KEY, updated);
-      return { exercises: updated };
-    }),
+  updateExercise: async (id, updates) => {
+    const existing = get().exercises.find((e) => e.id === id)!;
+    const updated = await api.updateExercise(id, { ...existing, ...updates });
+    set((state) => ({ exercises: state.exercises.map((e) => (e.id === id ? updated : e)) }));
+  },
 
-  updateExercise: (id, updates) =>
-    set((state) => {
-      const updated = state.exercises.map((e) => (e.id === id ? { ...e, ...updates } : e));
-      saveToStorage(STORAGE_KEY, updated);
-      return { exercises: updated };
-    }),
-
-  deleteExercise: (id) =>
-    set((state) => {
-      const updated = state.exercises.filter((e) => e.id !== id);
-      saveToStorage(STORAGE_KEY, updated);
-      return { exercises: updated };
-    }),
+  deleteExercise: async (id) => {
+    await api.deleteExercise(id);
+    set((state) => ({ exercises: state.exercises.filter((e) => e.id !== id) }));
+  },
 }));
+

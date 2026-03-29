@@ -1,34 +1,38 @@
 import { create } from 'zustand';
 import type { WorkoutLog } from '../types';
-import { loadFromStorage, saveToStorage } from '../utils/storage';
-
-const STORAGE_KEY = 'workout-app:logs';
+import { api } from '../utils/api';
 
 interface WorkoutLogStore {
   logs: WorkoutLog[];
-  addLog: (log: Omit<WorkoutLog, 'id'>) => void;
-  deleteLog: (id: string) => void;
-}
-
-function genId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  loading: boolean;
+  fetch: () => Promise<void>;
+  addLog: (log: Omit<WorkoutLog, 'id'>) => Promise<void>;
+  deleteLog: (id: string) => Promise<void>;
 }
 
 export const useWorkoutLogStore = create<WorkoutLogStore>((set) => ({
-  logs: loadFromStorage<WorkoutLog[]>(STORAGE_KEY, []),
+  logs: [],
+  loading: false,
 
-  addLog: (log) =>
-    set((state) => {
-      const newLog: WorkoutLog = { ...log, id: genId() };
-      const updated = [...state.logs, newLog];
-      saveToStorage(STORAGE_KEY, updated);
-      return { logs: updated };
-    }),
+  fetch: async () => {
+    set({ loading: true });
+    try {
+      const logs = await api.getLogs();
+      set({ logs, loading: false });
+    } catch (err) {
+      console.error('Failed to fetch logs:', err);
+      set({ loading: false });
+    }
+  },
 
-  deleteLog: (id) =>
-    set((state) => {
-      const updated = state.logs.filter((l) => l.id !== id);
-      saveToStorage(STORAGE_KEY, updated);
-      return { logs: updated };
-    }),
+  addLog: async (log) => {
+    const newLog = await api.createLog(log);
+    set((state) => ({ logs: [newLog, ...state.logs] }));
+  },
+
+  deleteLog: async (id) => {
+    await api.deleteLog(id);
+    set((state) => ({ logs: state.logs.filter((l) => l.id !== id) }));
+  },
 }));
+

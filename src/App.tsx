@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
+import { AppLoader } from './components/layout/AppLoader';
 import { Dashboard } from './pages/Dashboard';
 import { Exercises } from './pages/Exercises';
 import { Templates } from './pages/Templates';
@@ -11,19 +12,21 @@ import { Progress } from './pages/Progress';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/exercises" element={<Exercises />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/templates/new" element={<TemplateEditor />} />
-          <Route path="/templates/:id/edit" element={<TemplateEditor />} />
-          <Route path="/log" element={<LogWorkout />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/progress" element={<Progress />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+      <AppLoader>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/exercises" element={<Exercises />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/templates/new" element={<TemplateEditor />} />
+            <Route path="/templates/:id/edit" element={<TemplateEditor />} />
+            <Route path="/log" element={<LogWorkout />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/progress" element={<Progress />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </AppLoader>
     </BrowserRouter>
   );
 }
