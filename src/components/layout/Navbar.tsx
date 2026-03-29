@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Dumbbell, LayoutDashboard, ClipboardList, History, TrendingUp, BookOpen } from 'lucide-react';
+import { Dumbbell, LayoutDashboard, ClipboardList, History, TrendingUp, BookOpen, LogOut } from 'lucide-react';
 import { useActiveWorkoutStore } from '../../store/activeWorkoutStore';
+import { logout } from '../../lib/firebase';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -49,6 +50,15 @@ export function Navbar() {
             );
           })}
         </ul>
+        <div className="p-3 border-t border-slate-700">
+          <button
+            onClick={() => logout()}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors w-full"
+          >
+            <LogOut size={18} />
+            Sign out
+          </button>
+        </div>
       </nav>
 
       {/* Mobile bottom bar */}

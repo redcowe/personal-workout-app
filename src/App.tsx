@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Link } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { AppLoader } from './components/layout/AppLoader';
+import { AuthGuard } from './components/layout/AuthGuard';
 import { Dashboard } from './pages/Dashboard';
 import { Exercises } from './pages/Exercises';
 import { Templates } from './pages/Templates';
@@ -12,7 +13,8 @@ import { Progress } from './pages/Progress';
 function App() {
   return (
     <HashRouter>
-      <AppLoader>
+      <AuthGuard>
+        <AppLoader>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
@@ -27,6 +29,7 @@ function App() {
           </Route>
         </Routes>
       </AppLoader>
+      </AuthGuard>
     </HashRouter>
   );
 }

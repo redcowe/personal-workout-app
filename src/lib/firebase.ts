@@ -10,6 +10,15 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  browserLocalPersistence,
+  setPersistence,
+} from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import type { Exercise, WorkoutTemplate, WorkoutLog } from '../types';
 
 const firebaseConfig = {
@@ -23,6 +32,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+// ── Auth ───────────────────────────────────────────────────────────────────
+
+const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const LOGIN_TIME_KEY = 'workout-app:login-time';
+
+setPersistence(auth, browserLocalPersistence);
+
+export function isSessionExpired(): boolean {
+  const t = localStorage.getItem(LOGIN_TIME_KEY);
+  if (!t) return true;
+  return Date.now() - Number(t) > SESSION_DURATION_MS;
+}
+
+export async function login(email: string, password: string): Promise<void> {
+  await signInWithEmailAndPassword(auth, email, password);
+  localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+}
+
+export async function logout(): Promise<void> {
+  localStorage.removeItem(LOGIN_TIME_KEY);
+  await signOut(auth);
+}
+
+export function onAuthChange(cb: (user: User | null) => void): () => void {
+  return onAuthStateChanged(auth, cb);
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
