@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { AppLoader } from './components/layout/AppLoader';
 import { Dashboard } from './pages/Dashboard';
@@ -11,7 +11,7 @@ import { Progress } from './pages/Progress';
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppLoader>
         <Routes>
           <Route element={<Layout />}>
@@ -27,7 +27,7 @@ function App() {
           </Route>
         </Routes>
       </AppLoader>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
