@@ -43,12 +43,20 @@ export function isSessionExpired(): boolean {
 
 export async function loginWithGoogle(): Promise<void> {
   const provider = new GoogleAuthProvider();
-  const result = await signInWithPopup(auth, provider);
-  if (ALLOWED_EMAIL && result.user.email !== ALLOWED_EMAIL) {
-    await signOut(auth);
-    throw new Error('Access denied.');
-  }
+  // Set login time BEFORE the popup resolves so onAuthStateChanged
+  // doesn't see an expired session and immediately sign the user out.
   localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+  try {
+    const result = await signInWithPopup(auth, provider);
+    if (ALLOWED_EMAIL && result.user.email !== ALLOWED_EMAIL) {
+      localStorage.removeItem(LOGIN_TIME_KEY);
+      await signOut(auth);
+      throw new Error('Access denied.');
+    }
+  } catch (err) {
+    localStorage.removeItem(LOGIN_TIME_KEY);
+    throw err;
+  }
 }
 
 export async function logout(): Promise<void> {
