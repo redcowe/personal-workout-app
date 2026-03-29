@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Circle, XCircle, Plus, Trash2, Clock, Save, X } from 'lucide-react';
+import { CheckCircle2, Circle, XCircle, Plus, Trash2, Clock, Save, X, Pause, Play } from 'lucide-react';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
@@ -11,13 +11,20 @@ import { Modal } from '../components/ui/Modal';
 
 function useTimer() {
   const [seconds, setSeconds] = useState(0);
+  const [paused, setPaused] = useState(false);
   const ref = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
+    if (paused) {
+      if (ref.current) clearInterval(ref.current);
+      return;
+    }
     ref.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => { if (ref.current) clearInterval(ref.current); };
-  }, []);
+  }, [paused]);
+
   const fmt = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-  return { seconds, fmt };
+  return { seconds, fmt, paused, toggle: () => setPaused((p) => !p) };
 }
 
 export function LogWorkout() {
@@ -132,11 +139,20 @@ export function LogWorkout() {
           <h1 className="text-3xl font-bold text-white">{template?.name ?? 'Custom Workout'}</h1>
           <p className="text-slate-400 text-sm mt-1">{completedSets}/{totalSets} sets completed</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-slate-400 text-sm">
-            <Clock size={16} />
-            <span className="font-mono">{timer.fmt}</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={timer.toggle}
+            title={timer.paused ? 'Resume' : 'Pause'}
+            className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-colors font-mono ${
+              timer.paused
+                ? 'bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 animate-pulse'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Clock size={15} />
+            <span>{timer.fmt}</span>
+            {timer.paused ? <Play size={13} /> : <Pause size={13} />}
+          </button>
           <Button variant="ghost" size="sm" onClick={() => setDiscardOpen(true)}>
             <X size={16} /> Discard
           </Button>
