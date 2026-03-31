@@ -80,18 +80,37 @@ export function TemplateEditor() {
     setTemplateExercises((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSave = () => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
     if (!name.trim()) {
       setErrors({ name: 'Template name is required' });
       return;
     }
-    const data = { name: name.trim(), description: description.trim(), exercises: templateExercises };
-    if (isNew) {
-      addTemplate(data);
-    } else {
-      updateTemplate(id!, data);
+    // Strip undefined values — Firestore rejects them
+    const cleanExercises: typeof templateExercises = templateExercises.map((ex) => {
+      const clean: typeof templateExercises[number] = {
+        exerciseId: ex.exerciseId,
+        sets: ex.sets,
+        reps: ex.reps,
+        ...(ex.weight != null && { weight: ex.weight }),
+        ...(ex.restSeconds != null && { restSeconds: ex.restSeconds }),
+        ...(ex.progression != null && { progression: ex.progression }),
+      };
+      return clean;
+    });
+    const data = { name: name.trim(), description: description.trim(), exercises: cleanExercises };
+    setSaving(true);
+    try {
+      if (isNew) {
+        await addTemplate(data);
+      } else {
+        await updateTemplate(id!, data);
+      }
+      navigate('/templates');
+    } finally {
+      setSaving(false);
     }
-    navigate('/templates');
   };
 
   const getExerciseName = (exerciseId: string) =>
@@ -103,7 +122,7 @@ export function TemplateEditor() {
         <h1 className="text-2xl sm:text-3xl font-bold text-white">{isNew ? 'New Template' : 'Edit Template'}</h1>
         <div className="flex gap-3 shrink-0">
           <Button variant="secondary" onClick={() => navigate('/templates')}>Cancel</Button>
-          <Button onClick={handleSave}>Save Template</Button>
+          <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving…' : 'Save Template'}</Button>
         </div>
       </div>
 

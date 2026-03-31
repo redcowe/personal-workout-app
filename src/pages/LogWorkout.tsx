@@ -138,6 +138,12 @@ export function LogWorkout() {
     );
   };
 
+  const updateExerciseNotes = (exIdx: number, notes: string) => {
+    setLogExercises((prev) =>
+      prev.map((ex, i) => (i === exIdx ? { ...ex, notes: notes || undefined } : ex))
+    );
+  };
+
   const addExercise = (exerciseId: string) => {
     setLogExercises((prev) => [...prev, { exerciseId, sets: [{ reps: 10, weight: undefined, status: 'pending' as SetStatus }] }]);
     setPickerOpen(false);
@@ -272,6 +278,14 @@ export function LogWorkout() {
             >
               <Plus size={14} /> Add Set
             </button>
+
+            <textarea
+              value={logEx.notes ?? ''}
+              onChange={(e) => updateExerciseNotes(exIdx, e.target.value)}
+              placeholder="Notes (e.g. RPE 7, felt strong…)"
+              rows={1}
+              className="mt-3 w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none"
+            />
           </Card>
         ))}
 
