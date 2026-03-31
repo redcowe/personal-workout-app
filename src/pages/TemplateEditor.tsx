@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, GripVertical, Search } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
-import type { TemplateExercise } from '../types';
+import type { TemplateExercise, ProgressionConfig } from '../types';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Card } from '../components/ui/Card';
@@ -46,6 +46,33 @@ export function TemplateEditor() {
   const updateEx = (index: number, field: keyof TemplateExercise, value: number | undefined) => {
     setTemplateExercises((prev) =>
       prev.map((ex, i) => (i === index ? { ...ex, [field]: value } : ex))
+    );
+  };
+
+  const toggleProgression = (index: number) => {
+    setTemplateExercises((prev) =>
+      prev.map((ex, i) => {
+        if (i !== index) return ex;
+        if (ex.progression) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { progression: _progression, ...rest } = ex;
+          return rest;
+        }
+        return {
+          ...ex,
+          progression: { minReps: ex.reps, maxReps: ex.reps + 4, weightIncrement: 2.5 },
+        };
+      })
+    );
+  };
+
+  const updateProgression = (index: number, field: keyof ProgressionConfig, value: number) => {
+    setTemplateExercises((prev) =>
+      prev.map((ex, i) =>
+        i === index && ex.progression
+          ? { ...ex, progression: { ...ex.progression, [field]: value } }
+          : ex
+      )
     );
   };
 
@@ -145,6 +172,42 @@ export function TemplateEditor() {
                   </div>
                 ))}
               </div>
+
+              {/* Progressive overload toggle */}
+              <button
+                type="button"
+                onClick={() => toggleProgression(index)}
+                className={`flex items-center gap-1.5 text-xs font-medium transition-colors w-fit ${
+                  te.progression
+                    ? 'text-violet-400 hover:text-violet-300'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {te.progression ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                Progressive overload
+              </button>
+
+              {te.progression && (
+                <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-700">
+                  {[
+                    { label: 'Min reps', field: 'minReps' as const, min: 1 },
+                    { label: 'Max reps', field: 'maxReps' as const, min: 1 },
+                    { label: '+kg per step', field: 'weightIncrement' as const, min: 0.5 },
+                  ].map(({ label, field, min }) => (
+                    <div key={field} className="flex flex-col gap-1">
+                      <label className="text-xs text-slate-500">{label}</label>
+                      <input
+                        type="number"
+                        min={min}
+                        step={field === 'weightIncrement' ? 0.5 : 1}
+                        value={te.progression![field]}
+                        onChange={(e) => updateProgression(index, field, Number(e.target.value))}
+                        className="bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-violet-500 w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </Card>
           ))}
         </div>

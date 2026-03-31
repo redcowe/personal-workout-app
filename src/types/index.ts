@@ -27,6 +27,13 @@ export interface TemplateExercise {
   reps: number;
   weight?: number;
   restSeconds?: number;
+  progression?: ProgressionConfig;
+}
+
+export interface ProgressionConfig {
+  minReps: number;
+  maxReps: number;
+  weightIncrement: number;
 }
 
 export interface WorkoutTemplate {

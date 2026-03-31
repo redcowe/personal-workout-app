@@ -9,6 +9,7 @@ import type { LogExercise, SetStatus } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Modal } from '../components/ui/Modal';
+import { applyProgression } from '../utils/progression';
 
 function useTimer(initialSeconds: number) {
   const [seconds, setSeconds] = useState(initialSeconds);
@@ -32,7 +33,7 @@ export function LogWorkout() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('template');
-  const { templates } = useTemplateStore();
+  const { templates, updateTemplate } = useTemplateStore();
   const { exercises } = useExerciseStore();
   const { addLog } = useWorkoutLogStore();
   const { active, start, update, clear } = useActiveWorkoutStore();
@@ -147,8 +148,8 @@ export function LogWorkout() {
     setLogExercises((prev) => prev.filter((_, i) => i !== exIdx));
   };
 
-  const handleFinish = () => {
-    addLog({
+  const handleFinish = async () => {
+    const log = await addLog({
       templateId: effectiveTemplate?.id,
       templateName: effectiveTemplate?.name,
       date: new Date().toISOString(),
@@ -156,6 +157,18 @@ export function LogWorkout() {
       exercises: logExercises,
       notes,
     });
+
+    // Silently apply progressive overload to the template if applicable
+    const usedTemplate = effectiveTemplate?.id
+      ? templates.find((t) => t.id === effectiveTemplate.id)
+      : null;
+    if (usedTemplate && log) {
+      const progressed = applyProgression(usedTemplate, log);
+      if (progressed) {
+        await updateTemplate(usedTemplate.id, { exercises: progressed });
+      }
+    }
+
     clear();
     navigate('/history');
   };

@@ -6,7 +6,7 @@ interface WorkoutLogStore {
   logs: WorkoutLog[];
   loading: boolean;
   fetch: () => Promise<void>;
-  addLog: (log: Omit<WorkoutLog, 'id'>) => Promise<void>;
+  addLog: (log: Omit<WorkoutLog, 'id'>) => Promise<WorkoutLog>;
   deleteLog: (id: string) => Promise<void>;
 }
 
@@ -28,6 +28,7 @@ export const useWorkoutLogStore = create<WorkoutLogStore>((set) => ({
   addLog: async (log) => {
     const newLog = await fb.createLog(log);
     set((state) => ({ logs: [newLog, ...state.logs] }));
+    return newLog;
   },
 
   deleteLog: async (id) => {
