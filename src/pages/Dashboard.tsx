@@ -124,7 +124,7 @@ export function Dashboard() {
       </div>
 
       {/* Heatmap */}
-      <Card className="mb-8">
+      <Card className="mb-8 hidden md:block">
         <h2 className="text-white font-semibold mb-4">Activity</h2>
         <WorkoutHeatmap logs={logs} weeks={26} />
       </Card>
