@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plus, Play, ChevronRight, Zap, Flame } from 'lucide-react';
-import { useMemo } from 'react';
+import { Plus, Play, ChevronRight, Zap } from 'lucide-react';
 import { useWorkoutLogStore } from '../store/workoutLogStore';
 import { useTemplateStore } from '../store/templateStore';
 import { useExerciseStore } from '../store/exerciseStore';
@@ -30,40 +29,6 @@ export function Dashboard() {
       .map((te) => exercises.find((e) => e.id === te.exerciseId)?.name ?? '')
       .filter(Boolean)
       .join(', ') + (template.exercises.length > 3 ? ` +${template.exercises.length - 3} more` : '');
-
-  // Weekly stats
-  const { streak, thisWeekWorkouts, thisWeekSets } = useMemo(() => {
-    const sorted = [...logs].sort((a, b) => b.date.localeCompare(a.date));
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Streak: count consecutive days with at least one workout going back from today
-    const workoutDays = new Set(sorted.map((l) => l.date.split('T')[0]));
-    let streakCount = 0;
-    const cursor = new Date(today);
-    while (true) {
-      const key = cursor.toISOString().split('T')[0];
-      if (workoutDays.has(key)) {
-        streakCount++;
-        cursor.setDate(cursor.getDate() - 1);
-      } else break;
-    }
-
-    // This week (Mon–Sun)
-    const dayOfWeek = today.getDay(); // 0=Sun
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-    const weekLogs = logs.filter((l) => {
-      const d = new Date(l.date);
-      return d >= monday && d <= today;
-    });
-    const weekSets = weekLogs.reduce(
-      (s, l) => s + l.exercises.reduce((ss, ex) => ss + ex.sets.filter((set) => set.status === 'completed').length, 0),
-      0
-    );
-
-    return { streak: streakCount, thisWeekWorkouts: weekLogs.length, thisWeekSets: weekSets };
-  }, [logs]);
 
   return (
     <div className="p-4 sm:p-6 max-w-4xl mx-auto overflow-x-hidden">
@@ -158,33 +123,11 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Heatmap — desktop only */}
-      <Card className="mb-8 hidden md:block">
+      {/* Heatmap */}
+      <Card className="mb-8">
         <h2 className="text-white font-semibold mb-4">Activity</h2>
         <WorkoutHeatmap logs={logs} weeks={26} />
       </Card>
-
-      {/* Mobile activity summary */}
-      <div className="md:hidden mb-8">
-        <h2 className="text-white font-semibold mb-3">This Week</h2>
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="flex flex-col items-center py-4 px-2">
-            <div className="flex items-center gap-1 mb-1">
-              <Flame size={16} className={streak > 0 ? 'text-orange-400' : 'text-slate-600'} />
-              <span className="text-2xl font-bold text-white">{streak}</span>
-            </div>
-            <span className="text-slate-500 text-xs text-center">Day streak</span>
-          </Card>
-          <Card className="flex flex-col items-center py-4 px-2">
-            <span className="text-2xl font-bold text-violet-400 mb-1">{thisWeekWorkouts}</span>
-            <span className="text-slate-500 text-xs text-center">Workouts</span>
-          </Card>
-          <Card className="flex flex-col items-center py-4 px-2">
-            <span className="text-2xl font-bold text-violet-400 mb-1">{thisWeekSets}</span>
-            <span className="text-slate-500 text-xs text-center">Sets done</span>
-          </Card>
-        </div>
-      </div>
 
       {/* Recent workouts */}
       <Card>
